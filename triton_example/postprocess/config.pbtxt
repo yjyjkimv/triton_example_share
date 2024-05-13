@@ -32,6 +32,11 @@ input [
     name: "post_input"
     data_type: TYPE_FP32
     dims: [1, 25200, 15]
+},
+{
+    name: "post_input_code"
+    data_type: TYPE_STRING
+    dims: [1]
 }
 ]
 output [

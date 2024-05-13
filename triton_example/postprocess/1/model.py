@@ -38,7 +38,7 @@ import triton_python_backend_utils as pb_utils
 from PIL import Image
 import cv2
 import torch
-
+import base64
 
 class TritonPythonModel:
     """Your Python model must use the same class name. Every Python model
@@ -100,13 +100,29 @@ class TritonPythonModel:
         # Every Python backend must iterate over everyone of the requests
         # and create a pb_utils.InferenceResponse for each of them.
         for request in requests:
-            # Get INPUT0
+
+            # Get post_input
             in_0 = pb_utils.get_input_tensor_by_name(request, "post_input")
             detected = in_0.as_numpy()
             detected = np.squeeze(detected, axis = 0)
-            
-            # postprocess
-            output = detected
+
+            # GET post_input_code
+            in_1 = pb_utils.get_input_tensor_by_name(request, "post_input_code")
+            code_np = in_1.as_numpy()
+            code_byte = code_np[0][0]
+            code = code_byte.decode('utf-8')
+                        
+            # postprocess example ##########################
+
+            if code = '0004':
+                print('post code:', code)
+            else:
+                print('example')
+
+            output = np.ones(1, dtype=np.float32)
+            output[0] = 0.0
+
+            ###############################################
 
             out_tensor_0 = pb_utils.Tensor("post_output", output.astype(output0_dtype))
 

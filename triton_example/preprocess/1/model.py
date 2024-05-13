@@ -38,7 +38,14 @@ import triton_python_backend_utils as pb_utils
 from PIL import Image
 import cv2
 import torch
+import base64
 
+def custom_preprocessing(img):
+    # example
+    rst = cv2.resize(img, (640, 640))
+
+    return rst
+    
 class TritonPythonModel:
     """Your Python model must use the same class name. Every Python model
     that is created must have "TritonPythonModel" as the class name.
@@ -99,16 +106,21 @@ class TritonPythonModel:
         # Every Python backend must iterate over everyone of the requests
         # and create a pb_utils.InferenceResponse for each of them.
         for request in requests:
+
             # Get pre_input
             in_0 = pb_utils.get_input_tensor_by_name(request, "pre_input")
-            img = in_0.as_numpy()
-
-            # read cv image
-            image = Image.open(io.BytesIO(img.tobytes())) 
+            img_np = in_0.as_numpy()
+            image = Image.open(io.BytesIO(base64.b64decode(img_np[0][0])))
             im0 = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
 
-            # preprocess
-            input_image = im0
+            # preprocess example ##########################
+
+            input_image = custom_preprocessing(im0)
+            input_image = input_image.astype('float32')
+            input_image = input_image.transpose((2,0,1))[np.newaxis, :] / 255.0
+            input_image = np.ascontiguousarray(input_image)
+
+            ###############################################
 
             out_tensor_0 = pb_utils.Tensor("pre_output", input_image.astype(output_dtype))
             
